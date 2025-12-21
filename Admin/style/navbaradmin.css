@@ -1,0 +1,150 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+}
+
+/* HEADER */
+.header {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(145deg, #f50057, #ff4081);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  z-index: 1000;
+}
+
+.header-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.profile-icon {
+  font-size: 26px;
+}
+
+/* SIDEBAR */
+.sidenav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background: linear-gradient(145deg, #f50057, #ff4081);
+  color: #fff;
+  padding-top: 20px;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 180px;
+}
+
+/* SIDEBAR BUTTONS */
+.sidenav button,
+.sidenav a {
+  width: 100%;
+  padding: 14px 25px;
+  font-size: 16px;
+  border: none;
+  background: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+}
+
+.sidenav button:hover,
+.sidenav a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* DROPDOWN */
+.dropdown-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-container {
+  display: none;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-container a {
+  padding-left: 40px;
+  font-size: 15px;
+}
+
+/* LOGOUT */
+.logout {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  margin-left: 250px;
+  margin-top: 70px;
+  padding: 30px;
+}
+
+.card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.card h1 {
+  color: #f50057;
+  margin-bottom: 10px;
+}
+
+/* ===== Action Buttons ===== */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+}
+
+

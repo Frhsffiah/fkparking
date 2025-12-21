@@ -1,0 +1,17 @@
+# Windows / system junk
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# If you have these (optional)
+node_modules/
+vendor/
+
+# Keep uploads included (so DO NOT ignore uploads)
+# If you previously ignored uploads, remove that rule

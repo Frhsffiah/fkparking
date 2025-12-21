@@ -1,0 +1,154 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background: linear-gradient(145deg, #1b5e20, #4caf50); /* Green gradient */
+  color: #fff;
+  padding: 32px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.role {
+  font-size: 18px;
+}
+
+.profile-details {
+  display: flex;
+  align-items: center;
+}
+
+.profile-name {
+  font-size: 20px; /* Larger font size for the name */
+  margin-right: 10px; /* Space between name and profile icon */
+}
+
+.profile-icon {
+  font-size: 32px; /* Larger font size for the profile icon */
+}
+
+.profile-icon i {
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.profile-icon i:hover {
+  transform: scale(1.1);
+}
+
+.sidenav {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background: linear-gradient(145deg, #1b5e20, #4caf50); /* Green gradient */
+  overflow-x: hidden;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 200px;
+  height: auto;
+}
+
+.sidenav a, .dropdown-btn, .button {
+  padding: 15px 20px;
+  text-decoration: none;
+  font-size: 18px;
+  color: #fff;
+  display: block;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: 0.3s;
+}
+
+.sidenav a:hover, .dropdown-btn:hover, .button:hover {
+  color: #fff;
+}
+
+.button.active {
+  background-color: #388e3c; /* Darker green */
+  color: #fff;
+}
+
+.dropdown-btn.active, .dropdown-btn.active:hover {
+  background-color: #388e3c; /* Darker green */
+  color: #fff;
+}
+
+.dropdown-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.dropdown-containers {
+  display: none;
+  background-color: #388e3c; /* Darker green */
+  padding-left: 20px;
+}
+
+.dropdown-containers a {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #d1d8e0;
+  transition: 0.3s;
+}
+
+.dropdown-containers a:hover {
+  color: #fff;
+}
+
+#logout-button {
+  margin-top: auto;
+  margin-bottom: 20%;
+  background: none;
+  display: flex;
+  align-items: center;
+}
+
+#logout-button:hover {
+  color: white;
+}
+
+#logout-button.active {
+  background-color: #388e3c; /* Darker green */
+  color: white;
+}
+
+#logout-button i {
+  margin-right: 10px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 16px;}
+}
