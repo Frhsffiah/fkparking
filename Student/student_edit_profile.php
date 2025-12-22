@@ -97,46 +97,84 @@ $staff = $stmt->get_result()->fetch_assoc();
 <!-- ================= SIDEBAR ================= -->
 <div class="sidenav">
 
-    <div class="logo-container">
-        <img src="../uploads/fkparkLogo.jpg" class="logo">
-    </div>
+  <div class="logo-container">
+    <img src="../uploads/fkparkLogo.jpg" class="logo">
+  </div>
 
-    <a href="staff_dashboard.php">
-        <i class="fas fa-home"></i> Dashboard
+  <button class="button active" onclick="location.href='student_dashboard.php'">
+    <i class="fas fa-home"></i> Dashboard
+  </button>
+
+<button class="dropdown-btn" id="vehicleBtn">
+  <span class="icon-text">
+    <i class="fas fa-car"></i>
+    <span>Vehicle</span>
+  </span>
+  <span class="dropdown-arrow">&#9654;</span>
+</button>
+
+ <div class="dropdown-containers" id="vehicleMenu">
+    <a href="student_vec_reg.php">
+      <i class="fas fa-plus-circle"></i> Vehicle Registration
     </a>
 
-    <!-- DROPDOWN -->
-    <button class="dropdown-btn" id="uvBtn">
-        <span>
-            <i class="fas fa-users"></i> User & Vehicle Registration
-        </span>
-        <span class="dropdown-arrow">&#9654;</span>
-    </button>
+  <a href="student_application_stat.php">
+    <i class="fas fa-clipboard-check"></i> Application Status
+  </a>
 
-    <div class="dropdown-containers" id="uvMenu">
-        <a href="staff_approve_vec.php">Vehicle Approval</a>
-        <a href="staff_profile.php">User Profile</a>
+  <a href="student_profile.php">
+    <i class="fas fa-user"></i> User Profile
+  </a>
+</div>
+
+   <!-- Parking Spaces -->
+  <button class="dropdown-btn" id="psBtn">
+    <span class="icon-text">
+    <i class="fas fa-parking"></i> 
+    <span>Parking Spaces</span>
+    <span class="dropdown-arrow">&#9654;</span>
+  </button>
+
+  <div class="dropdown-containers" id="psMenu">
+    <a href="student_parking_availability.php">
+      <i class="fas fa-list"></i> Parking Availability
+    </a>
+    <a href="student_my_parking.php">
+      <i class="fas fa-car-side"></i> My Parking
+    </a>
     </div>
+    
 
-    <a href="#"><i class="fas fa-parking"></i> Parking Spaces</a>
-    <a href="#"><i class="fas fa-exclamation-circle"></i> Traffic Summon</a>
+  <!-- Booking -->
+  <button class="button">
+    <i class="fas fa-calendar-check"></i> Booking
+  </button>
 
-    <button class="button" id="logout-button"
-            onclick="location.href='../public/logout_page.php'">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
+  <!-- Summon -->
+  <button class="button">
+    <i class="fas fa-receipt"></i> Summon
+  </button>
+
+
+  <button class="button" id="logout-button"
+          onclick="location.href='../public/logout_page.php'">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
+
 </div>
 
 <!-- ================= HEADER ================= -->
-<header class="header">
-    <div class="header-content">
-        <div></div>
-        <div class="profile-name">
-            Hi <?= htmlspecialchars($student['Stud_firstname']) ?>, Welcome to FKPARK!
-            <i class="fas fa-user-circle"></i>
-        </div>
+<div class="header">
+  <div class="header-content">
+    <div></div>
+    <div class="profile-name">
+      Hi <?= htmlspecialchars($student['Stud_firstname'] ?? 'Student') ?>, Welcome to FKPARK!
+      <span class="profile-icon">
+        <i class="fas fa-user-circle"></i>
+      </span>
     </div>
-</header>
+  </div>
+</div>
 
 <!-- ================= MAIN CONTENT ================= -->
 <div class="main-content">

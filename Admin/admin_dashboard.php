@@ -45,9 +45,17 @@ $admin = $stmt->get_result()->fetch_assoc();
         <a href="admin_profile.php">User Profile</a>
     </div>
 
-    <button>
+    <button class="dropdown-btn" id="psBtn">
+        <span>
         <i class="fas fa-parking"></i> Parking Spaces
+        </span>
+        <span class="dropdown-arrow">&#9654;</span>
     </button>
+
+    <div class="dropdown-container">
+        <a href="admin_list_parking.php">Parking List</a>
+        <a href="admin_add_parking.php">Add Parking</a>
+    </div>
 
     <div class="logout">
         <button onclick="location.href='../public/logout_page.php'">
@@ -77,12 +85,20 @@ $admin = $stmt->get_result()->fetch_assoc();
 </div>
 
 <script>
-document.querySelector(".dropdown-btn").addEventListener("click", function () {
-    this.classList.toggle("active");
-    let dropdown = this.nextElementSibling;
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
 });
 </script>
+
 
 </body>
 </html>

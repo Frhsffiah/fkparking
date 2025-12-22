@@ -93,9 +93,22 @@ $student = $stmt->get_result()->fetch_assoc();
 </div>
 
    <!-- Parking Spaces -->
-  <button class="button">
-    <i class="fas fa-parking"></i> Parking Spaces
+  <button class="dropdown-btn" id="psBtn">
+    <span class="icon-text">
+    <i class="fas fa-parking"></i> 
+    <span>Parking Spaces</span>
+    <span class="dropdown-arrow">&#9654;</span>
   </button>
+
+  <div class="dropdown-containers" id="psMenu">
+    <a href="student_parking_availability.php">
+      <i class="fas fa-list"></i> Parking Availability
+    </a>
+    <a href="student_my_parking.php">
+      <i class="fas fa-car-side"></i> My Parking
+    </a>
+    </div>
+    
 
   <!-- Booking -->
   <button class="button">

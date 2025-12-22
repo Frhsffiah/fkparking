@@ -29,42 +29,70 @@ $staff = $stmt->get_result()->fetch_assoc();
 
 <!-- ================= SIDEBAR ================= -->
 <div class="sidenav">
-    <div class="logo-container">
-        <img src="../uploads/fkparkLogo.jpg" class="logo">
-    </div>
 
-    <a href="staff_dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
+    <div>
+        <div class="logo-container">
+            <img src="../uploads/fkparkLogo.jpg" class="logo">
+        </div>
 
- <button class="dropdown-btn" id="uvBtn">
+        <!-- Dashboard -->
+        <a href="staff_dashboard.php" class="button active">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+
+        <!-- User & Vehicle Registration -->
+        <button class="dropdown-btn" id="uvBtn">
             <span>
                 <i class="fas fa-users"></i> User & Vehicle Registration
             </span>
             <span class="dropdown-arrow">&#9654;</span>
         </button>
 
-    <div class="dropdown-containers">
-        <a href="staff_approve_vec.php">Vehicle Approval</a>
-        <a href="staff_profile.php">User Profile</a>
+        <div class="dropdown-containers" id="uvMenu">
+            <a href="staff_approve_vec.php">
+                <i class="fas fa-car"></i> Vehicle Approval
+            </a>
+            <a href="staff_profile.php">
+                <i class="fas fa-user"></i> User Profiles
+            </a>
+        </div>
+
+        <!-- Parking -->
+         <button class="dropdown-btn" id="psBtn">
+            <span>
+                <i class="fas fa-parking"></i> Parking Spaces
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+         </button>
+            <div class="dropdown-containers" id="psMenu">
+                <a href="staff_parking_availability.php">
+                    <i class="fas fa-list"></i> Parking Availability
+                </a>
+            </div>
+        <!-- Traffic Summon -->
+        <a href="#">
+            <i class="fas fa-file-invoice"></i> Traffic Summon
+        </a>
     </div>
 
-    <a href="#"><i class="fas fa-parking"></i> Parking Spaces</a>
-    <a href="#"><i class="fas fa-exclamation-circle"></i> Traffic Summon</a>
-
-      <!-- Logout -->
+    <!-- Logout -->
     <button class="button" id="logout-button"
           onclick="location.href='../public/logout_page.php'">
     <i class="fas fa-sign-out-alt"></i> Logout
   </button>
 </div>
+
 <!-- ================= HEADER ================= -->
 <header class="header">
     <div class="header-content">
-        <div></div>
+        <div class="role">Staff</div>
         <div class="profile-details">
-            <span class="profile-name">
+            <div class="profile-name">
                 Hi <?= htmlspecialchars($staff['Staff_firstname']) ?>, Welcome to FKPARK!
-            </span>
-            <span class="profile-icon"><i class="fas fa-user-circle"></i></span>
+            </div>
+            <div class="profile-icon">
+                <i class="fas fa-user-circle"></i>
+            </div>
         </div>
     </div>
 </header>
@@ -92,10 +120,18 @@ $staff = $stmt->get_result()->fetch_assoc();
 </div>
 
 <script>
-document.querySelector(".dropdown-btn").onclick = function () {
-    let menu = this.nextElementSibling;
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-};
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
+});
 </script>
 
 </body>

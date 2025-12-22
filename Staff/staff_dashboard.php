@@ -61,10 +61,17 @@ $staff = $stmt->get_result()->fetch_assoc();
         </div>
 
         <!-- Parking -->
-        <a href="#">
-            <i class="fas fa-parking"></i> Parking Spaces
-        </a>
-
+         <button class="dropdown-btn" id="psBtn">
+            <span>
+                <i class="fas fa-parking"></i> Parking Spaces
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+         </button>
+            <div class="dropdown-containers" id="psMenu">
+                <a href="staff_parking_availability.php">
+                    <i class="fas fa-list"></i> Parking Availability
+                </a>
+            </div>
         <!-- Traffic Summon -->
         <a href="#">
             <i class="fas fa-file-invoice"></i> Traffic Summon
@@ -117,10 +124,18 @@ $staff = $stmt->get_result()->fetch_assoc();
 
 <!-- ================= SCRIPT ================= -->
 <script>
-document.getElementById("uvBtn").onclick = function () {
-    let menu = document.getElementById("uvMenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-};
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
+});
 </script>
 
 </body>

@@ -46,10 +46,12 @@ $students = $stmt->get_result();
         <i class="fas fa-home"></i> Dashboard
     </button>
 
-    <button class="dropdown-btn">
-        <span><i class="fas fa-users"></i> User & Vehicle Registration</span>
-        <i class="fas fa-chevron-down"></i>
-    </button>
+    <button class="dropdown-btn" id="uvBtn">
+            <span>
+                <i class="fas fa-users"></i> User & Vehicle Registration
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+        </button>
 
     <div class="dropdown-container">
         <a href="admin_reg_student.php">User Registration</a>
@@ -57,7 +59,17 @@ $students = $stmt->get_result();
         <a href="admin_profile.php">User Profile</a>
     </div>
 
-    <button><i class="fas fa-parking"></i> Parking Spaces</button>
+    <button class="dropdown-btn" id="psBtn">
+        <span>
+        <i class="fas fa-parking"></i> Parking Spaces
+        </span>
+        <span class="dropdown-arrow">&#9654;</span>
+    </button>
+
+    <div class="dropdown-container">
+        <a href="admin_list_parking.php">Parking List</a>
+        <a href="admin_add_parking.php">Add Parking</a>
+    </div>
 
     <div class="logout">
         <button onclick="location.href='../public/logout_page.php'">
@@ -72,7 +84,7 @@ $students = $stmt->get_result();
         <div></div>
         <div class="profile-name">
             Hi <?= htmlspecialchars($admin['Admin_firstname']) ?>, Welcome to FKPARK!
-            <i class="fas fa-user-circle"></i>
+            <span class="profile-icon"><i class="fas fa-user-circle"></i></span>
         </div>
     </div>
 </div>
@@ -222,10 +234,18 @@ $students = $stmt->get_result();
 </style>
 
 <script>
-document.querySelector(".dropdown-btn").onclick = function () {
-    let d = this.nextElementSibling;
-    d.style.display = d.style.display === "block" ? "none" : "block";
-};
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
+});
 </script>
 
 </body>

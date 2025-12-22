@@ -26,7 +26,7 @@ $admin = $stmt->get_result()->fetch_assoc();
 </head>
 <body>
 
-<!-- ================= SIDEBAR ================= -->
+<!-- SIDEBAR -->
 <div class="sidenav">
     <div class="logo-container">
         <img src="../uploads/fkparkLogo.jpg" class="logo">
@@ -36,10 +36,12 @@ $admin = $stmt->get_result()->fetch_assoc();
         <i class="fas fa-home"></i> Dashboard
     </button>
 
-    <button class="dropdown-btn">
-        <span><i class="fas fa-users"></i> User & Vehicle Registration</span>
-        <i class="fas fa-chevron-down"></i>
-    </button>
+    <button class="dropdown-btn" id="uvBtn">
+            <span>
+                <i class="fas fa-users"></i> User & Vehicle Registration
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+        </button>
 
     <div class="dropdown-container">
         <a href="admin_reg_student.php">User Registration</a>
@@ -47,25 +49,35 @@ $admin = $stmt->get_result()->fetch_assoc();
         <a href="admin_profile.php">User Profile</a>
     </div>
 
-    <button><i class="fas fa-parking"></i> Parking Spaces</button>
+    <button class="dropdown-btn" id="psBtn">
+        <span>
+        <i class="fas fa-parking"></i> Parking Spaces
+        </span>
+        <span class="dropdown-arrow">&#9654;</span>
+    </button>
 
-     <div class="logout">
+    <div class="dropdown-container">
+        <a href="admin_list_parking.php">Parking List</a>
+        <a href="admin_add_parking.php">Add Parking</a>
+    </div>
+
+    <div class="logout">
         <button onclick="location.href='../public/logout_page.php'">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </div>
 </div>
 
-<!-- ================= HEADER ================= -->
-<header class="header">
+<!-- HEADER -->
+<div class="header">
     <div class="header-content">
         <div></div>
         <div class="profile-name">
             Hi <?= htmlspecialchars($admin['Admin_firstname']) ?>, Welcome to FKPARK!
-            <i class="fas fa-user-circle"></i>
+            <span class="profile-icon"><i class="fas fa-user-circle"></i></span>
         </div>
     </div>
-</header>
+</div>
 
 <!-- ================= MAIN CONTENT ================= -->
 <div class="main-content">
@@ -89,11 +101,18 @@ $admin = $stmt->get_result()->fetch_assoc();
 </div>
 
 <script>
-document.querySelector(".dropdown-btn").onclick = function () {
-    let dropdown = this.nextElementSibling;
-    dropdown.style.display =
-        dropdown.style.display === "block" ? "none" : "block";
-};
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
+});
 </script>
 
 </body>
