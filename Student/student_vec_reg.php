@@ -120,6 +120,9 @@ if ($vehicle) {
     <a href="student_parking_availability.php">
       <i class="fas fa-list"></i> Parking Availability
     </a>
+    <a href="student_my_parking.php">
+      <i class="fas fa-car-side"></i> My Parking
+    </a>
     </div>
     
 

@@ -2,64 +2,104 @@
 session_start();
 include("../php/config.php");
 
-/* ================= AUTH CHECK ================= */
+/* ===== SECURITY CHECK ===== */
 if (!isset($_SESSION['User_id']) || $_SESSION['User_type'] !== 'student') {
-    header("Location: ../public/login.php");
+    header("Location: ../public/login_page.php");
     exit();
 }
 
-$userId = $_SESSION['User_id'];
-
-/* ================= FETCH STUDENT NAME ================= */
+/* ===== FETCH STUDENT INFO ===== */
 $stmt = $conn->prepare("
-    SELECT s.Stud_firstname
-    FROM student s
-    JOIN user u ON s.User_id = u.User_id
-    WHERE u.User_id = ?
+    SELECT Stud_id, Stud_firstname
+    FROM student
+    WHERE User_id = ?
 ");
-$stmt->bind_param("i", $userId);
+$stmt->bind_param("i", $_SESSION['User_id']);
 $stmt->execute();
 $student = $stmt->get_result()->fetch_assoc();
+
+/* ===== FETCH STUDENT PARKING BOOKINGS ===== */
+$stmt = $conn->prepare("
+    SELECT 
+        pb.PB_id,
+        pb.PB_date,
+        pb.PB_startTime,
+        pb.PB_endTime,
+        pb.PB_status,
+        pb.Vehicle_regNo,
+        ps.vehicle_type,
+        ps.PS_Area,
+        ps.PS_box
+    FROM parkingbooking pb
+    JOIN parkingspace ps ON pb.PS_id = ps.PS_id
+    WHERE pb.Stud_id = ?
+    ORDER BY pb.PB_date DESC
+");
+$stmt->bind_param("i", $student['Stud_id']);
+$stmt->execute();
+$resultBooking = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Student Dashboard</title>
+<title>My Parking</title>
 
 <link rel="stylesheet" href="style/navbarstud.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-/* ===== MAIN CONTENT (MATCH ADMIN) ===== */
 .main-content {
-  margin-left: 250px;
-  margin-top: 70px;
-  padding: 30px;
+    margin-left: 250px;
+    margin-top: 90px;
+    padding: 40px;
 }
 
 .card {
-  background: #fff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  max-width: 900px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 900px;
 }
 
-.card h1 {
-  margin-bottom: 10px;
+.parking-card {
+    border: 1px solid #eee;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
 }
 
-.card p {
-  color: #555;
+.badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.badge-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-ended {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.empty {
+    text-align: center;
+    color: #777;
+    padding: 40px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= SIDEBAR ================= -->
+<!-- ===== SIDEBAR ===== -->
 <div class="sidenav">
 
   <div class="logo-container">
@@ -139,36 +179,37 @@ $student = $stmt->get_result()->fetch_assoc();
   </button>
 
 </div>
-
-<!-- ================= HEADER ================= -->
-<div class="header">
-  <div class="header-content">
-    <div></div>
-    <div class="profile-name">
-      Hi <?= htmlspecialchars($student['Stud_firstname'] ?? 'Student') ?>, Welcome to FKPARK!
-      <span class="profile-icon">
-        <i class="fas fa-user-circle"></i>
-      </span>
-    </div>
-  </div>
-</div>
-
-<!-- ================= MAIN CONTENT ================= -->
+<!-- ===== MAIN CONTENT ===== -->
 <div class="main-content">
-  <div class="card">
-    <h1>Dashboard</h1>
-    <p>Welcome to the FKPARK Student Dashboard.</p>
 
-    <p>You may:</p>
-    <ul>
-      <li>Register your vehicle</li>
-      <li>Check your application status</li>
-      <li>Update your profile information</li>
-    </ul>
-  </div>
+<div class="card">
+<h2>My Parking</h2>
+
+<?php if ($resultBooking->num_rows > 0): ?>
+    <?php while ($b = $resultBooking->fetch_assoc()): ?>
+        <div class="parking-card">
+            <p><strong>Vehicle Type:</strong> <?= ucfirst($b['vehicle_type']) ?></p>
+            <p><strong>Vehicle Plate:</strong> <?= htmlspecialchars($b['Vehicle_regNo']) ?></p>
+            <p><strong>Area:</strong> <?= htmlspecialchars($b['PS_Area']) ?></p>
+            <p><strong>Box:</strong> <?= htmlspecialchars($b['PS_box']) ?></p>
+            <p><strong>From:</strong> <?= $b['PB_startTime'] ?></p>
+            <p><strong>Until:</strong> <?= $b['PB_endTime'] ?></p>
+
+            <span class="badge <?= $b['PB_status']=='active' ? 'badge-active' : 'badge-ended' ?>">
+                <?= ucfirst($b['PB_status']) ?>
+            </span>
+        </div>
+    <?php endwhile; ?>
+<?php else: ?>
+    <div class="empty">
+        <i class="fas fa-car-side fa-3x"></i>
+        <p>You do not have any parking bookings yet.</p>
+    </div>
+<?php endif; ?>
+
+</div>
 </div>
 
-<!-- ================= DROPDOWN SCRIPT ================= -->
 <script>
 document.querySelectorAll('.dropdown-btn').forEach(btn => {
   btn.addEventListener('click', function () {
