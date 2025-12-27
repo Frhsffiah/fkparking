@@ -128,9 +128,21 @@ if (!$vehicle || $vehicle['Document_status'] !== 'Rejected') {
     
 
   <!-- Booking -->
-  <button class="button">
-    <i class="fas fa-calendar-check"></i> Booking
+  <button class="dropdown-btn" id="psBtn">
+    <span class="icon-text">
+    <i class="fas fa-parking"></i> 
+    <span>Booking</span>
+    <span class="dropdown-arrow">&#9654;</span>
   </button>
+
+  <div class="dropdown-containers" id="psMenu">
+    <a href="student_search_parking.php">
+      <i class="fas fa-list"></i> Make Booking
+    </a>
+    <a href="student_bookings.php">
+      <i class="fas fa-car-side"></i> My Bookings
+    </a>
+    </div>
 
   <!-- Summon -->
   <button class="button">
