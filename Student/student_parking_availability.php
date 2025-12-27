@@ -330,7 +330,7 @@ while ($p = $resultParking->fetch_assoc()):
     </td>
     <td>
         <?php if ($p['PS_status']=='available'): ?>
-            <a class="book-btn" href="student_confirm_booking.php?id=<?= $p['PS_id'] ?>">
+            <a class="book-btn" href="student_search_parking.php">
                 Book
             </a>
         <?php else: ?>
