@@ -22,7 +22,7 @@ if (isset($_POST['cancel_booking'])) {
     $booking_id = $_POST['booking_id'];
     
     // Security Check: Ensure this booking actually belongs to the logged-in student
-    $cancelSql = "UPDATE parking_booking SET PB_status = 'Cancelled' 
+    $cancelSql = "UPDATE parkingbooking SET PB_status = 'Cancelled' 
                   WHERE PB_id = ? AND Stud_id = ?";
     $cancelStmt = $conn->prepare($cancelSql);
     $cancelStmt->bind_param("ii", $booking_id, $stud_id);

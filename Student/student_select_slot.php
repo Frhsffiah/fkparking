@@ -214,53 +214,70 @@ if ($checkLimit->num_rows > 0) {
         <div class="slot-grid">
             <?php
             // ==========================================================
-            // LOGIC: FIND AVAILABLE SLOTS
+            // LOGIC CHANGE: SHOW ALL, BUT MARK BOOKED AS UNAVAILABLE
             // ==========================================================
-            // We need slots that are:
-            // 1. Active in parking_space table (PS_status = 'Available')
-            // 2. NOT booked in parking_booking table during the requested time window
             
-            // Note: The logic 'NOT (End <= req_Start OR Start >= req_End)' ensures we catch ANY overlap
+            // We use a LEFT JOIN. 
+            // 1. Get ALL parking spaces (ps)
+            // 2. Try to join a booking (pb) that overlaps with our requested time.
+            // 3. If the join is successful (pb.PB_id is NOT NULL), it means the slot is TAKEN.
+            
             $sql = "
-                SELECT * FROM parkingspace ps
-                WHERE ps.PS_status = 'available'
-                AND ps.PS_id NOT IN (
-                    SELECT pb.PS_id FROM parkingbooking pb
-                    WHERE pb.PB_date = ? 
+                SELECT ps.*, 
+                (
+                    SELECT COUNT(*) 
+                    FROM parkingbooking pb 
+                    WHERE pb.PS_id = ps.PS_id 
+                    AND pb.PB_date = ? 
                     AND pb.PB_status IN ('Approved', 'Pending', 'Success') 
-                    AND NOT (
-                        pb.PB_endTime <= ? OR pb.PB_startTime >= ?
-                    )
-                )
+                    AND NOT (pb.PB_endTime <= ? OR pb.PB_startTime >= ?)
+                ) as active_bookings
+                FROM parkingspace ps
                 ORDER BY ps.PS_Area, ps.PS_box
             ";
 
             $stmt = $conn->prepare($sql);
-            // Bind parameters: s=string. Order: Date, StartTime, EndTime
             $stmt->bind_param("sss", $date, $start, $end);
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
-                    // Determine Icon based on vehicle type (assuming column is 'vehicle_type' or similar)
-                    // If your column is named differently, update 'vehicle_type' below.
+                    
+                    // 1. Check if Admin marked it as Maintenance/Unavailable
+                    $isMaintenance = (strtolower($row['PS_status']) !== 'available');
+
+                    // 2. Check if Student booked it
+                    $isBooked = ($row['active_bookings'] > 0);
+
+                    // Combined Unavailable Status
+                    $isUnavailable = ($isMaintenance || $isBooked);
+
+                    // UI Setup
+                    $cardClass = $isUnavailable ? 'slot-card unavailable' : 'slot-card';
+                    
+                    // Icon Setup
                     $type = isset($row['vehicle_type']) ? $row['vehicle_type'] : 'Car';
-                    $icon = ($type == 'Motorcycle') ? 'fa-motorcycle' : 'fa-car';
+                    $icon = ($type == 'motorcycle') ? 'fa-motorcycle' : 'fa-car';
                     ?>
                     
-                    <div class="slot-card">
+                    <div class="<?= $cardClass ?>">
                         <div class="vehicle-icon"><i class="fas <?= $icon ?>"></i></div>
                         <div class="slot-header"><?= htmlspecialchars($row['PS_box']) ?></div>
                         <div class="slot-area">Area: <?= htmlspecialchars($row['PS_Area']) ?></div>
                         
-                        <form action="student_process_booking.php" method="POST">
-                            <input type="hidden" name="ps_id" value="<?= $row['PS_id'] ?>">
-                            <input type="hidden" name="date" value="<?= $date ?>">
-                            <input type="hidden" name="start_time" value="<?= $start ?>">
-                            <input type="hidden" name="end_time" value="<?= $end ?>">
-                            <button type="submit" class="btn-book" onclick="return confirm('Confirm booking for <?= $row['PS_box'] ?>?')">Book Now</button>
-                        </form>
+                        <?php if ($isUnavailable): ?>
+                            <?php $reason = $isMaintenance ? "Maintenance" : "Booked"; ?>
+                            <button class="btn-disabled" disabled><?= $reason ?></button>
+                        <?php else: ?>
+                            <form action="student_process_booking.php" method="POST">
+                                <input type="hidden" name="ps_id" value="<?= $row['PS_id'] ?>">
+                                <input type="hidden" name="date" value="<?= $date ?>">
+                                <input type="hidden" name="start_time" value="<?= $start ?>">
+                                <input type="hidden" name="end_time" value="<?= $end ?>">
+                                <button type="submit" class="btn-book" onclick="return confirm('Confirm booking for <?= $row['PS_box'] ?>?')">Book Now</button>
+                            </form>
+                        <?php endif; ?>
                     </div>
 
                     <?php
