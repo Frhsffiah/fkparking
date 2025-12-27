@@ -38,11 +38,10 @@ $checkLimit->store_result();
 
 if ($checkLimit->num_rows > 0) {
     // If they already have a booking, stop them here.
-    echo "<div class='main-content'><div class='container'><div class='alert-box error'>
-          <h3 style='color: #dc3545;'><i class='fas fa-exclamation-circle'></i> Booking Limit Reached</h3>
-          <p>You already have an active booking. You can only make one booking at a time.</p>
-          <a href='student_bookings.php' class='btn-back'>View My Bookings</a>
-          </div></div></div>";
+    echo "<script>
+            alert('Booking Limit Reached: You already have an active booking. You can only make one booking at a time.');
+            window.location.href = 'student_bookings.php';
+          </script>";
     exit();
 }
 // ==========================================================
@@ -58,31 +57,71 @@ if ($checkLimit->num_rows > 0) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .main-content { margin-left: 250px; padding: 40px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        /* Increased container width to fit map + grid side-by-side */
+        .container { max-width: 1200px; margin: 0 auto; }
         
         .header-info {
-            background: #fff; padding: 20px; border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; 
+            padding: 20px; 
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            margin-bottom: 25px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
         }
 
-        /* Grid for Parking Slots */
+        /* --- NEW LAYOUT: SPLIT SCREEN --- */
+        .layout-container {
+            display: flex;
+            gap: 30px; /* Space between Map and Grid */
+            align-items: flex-start;
+        }
+
+        /* Left Column: Map */
+        .map-column {
+            flex: 0 0 350px; /* Fixed width for the map (adjust as needed) */
+            position: sticky; /* Keeps map visible while scrolling */
+            top: 20px;
+        }
+
+        .parking-map {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 5px solid white;
+        }
+
+        /* Right Column: Grid */
+        .grid-column {
+            flex: 1; /* Takes up the remaining space */
+        }
+
         .slot-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            /* Auto-fit columns based on available space */
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
         }
 
         .slot-card {
             background: white; border-radius: 10px; padding: 20px;
             text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s; border-left: 5px solid #28a745; /* Green for Available */
+            transition: transform 0.2s; 
+            border-left: 5px solid #28a745; /* Green */
         }
-        .slot-card:hover { transform: translateY(-5px); }
+
+        .slot-card.unavailable {
+            border-left: 5px solid #dc3545; /* Red */
+            background-color: #f2f2f2;
+            opacity: 0.7;
+            pointer-events: none;
+        }
 
         .slot-header { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 5px; }
         .slot-area { color: #666; font-size: 0.9rem; margin-bottom: 15px; }
         .vehicle-icon { font-size: 2rem; color: #28a745; margin-bottom: 15px; }
+        .slot-card.unavailable .vehicle-icon { color: #dc3545; } 
 
         .btn-book {
             background-color: #007bff; color: white; padding: 10px 20px;
@@ -91,13 +130,14 @@ if ($checkLimit->num_rows > 0) {
         }
         .btn-book:hover { background-color: #0056b3; }
 
-        .alert-box {
-            background: #fff; padding: 30px; border-radius: 8px; text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        .btn-disabled {
+            background-color: #6c757d; color: white; padding: 10px 20px;
+            border-radius: 5px; display: inline-block;
+            font-size: 0.9rem; border: none; cursor: not-allowed; width: 100%;
         }
-        .alert-box.error { border-top: 5px solid #dc3545; }
+        
         .btn-back {
-            display: inline-block; margin-top: 15px; padding: 10px 20px;
+            display: inline-block; padding: 10px 20px;
             background: #6c757d; color: white; text-decoration: none; border-radius: 4px;
         }
     </style>
@@ -202,15 +242,24 @@ if ($checkLimit->num_rows > 0) {
         
         <div class="header-info">
             <div>
-                <h2>Select a Parking Spot</h2>
-                <p>
+                <h2 style="margin: 0 0 5px 0;">Select a Parking Spot</h2>
+                <p style="margin: 0; color: #555;">
                     <i class="far fa-calendar-alt"></i> Date: <strong><?= htmlspecialchars($date) ?></strong> | 
                     <i class="far fa-clock"></i> Time: <strong><?= htmlspecialchars($start) ?> - <?= htmlspecialchars($end) ?></strong>
                 </p>
             </div>
-            <a href="student_search_parking.php" class="btn-back" style="margin:0;">Change Time</a>
+            <a href="student_search_parking.php" class="btn-back">Change Time</a>
         </div>
 
+        <div class="layout-container">
+            
+            <div class="map-column">
+                <h3 style="margin-top:0; color:#444;">Area Map</h3>
+                <img src="../uploads/FkomPark.png" alt="Parking Map" class="parking-map" onclick="window.open(this.src)">
+                <p style="text-align:center; font-size:0.8rem; color:#666; margin-top:5px;">(Click map to enlarge)</p>
+            </div>
+
+    <div class="grid-column">        
         <div class="slot-grid">
             <?php
             // ==========================================================
@@ -291,6 +340,7 @@ if ($checkLimit->num_rows > 0) {
             }
             ?>
         </div>
+    </div>
     </div>
 </div>
 <script>
