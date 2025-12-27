@@ -3,8 +3,9 @@ session_start();
 include("../php/config.php");
 
 // 1. AUTH CHECK
-if (!isset($_SESSION['Stud_id'])) {
-    header("Location: student_login_page.php");
+// Must be logged in as SOMETHING (Student, Admin, or Staff)
+if (!isset($_SESSION['User_id'])) {
+    header("Location: ../public/login_page.php");
     exit();
 }
 
@@ -14,26 +15,42 @@ if (!isset($_GET['id'])) {
 }
 
 $booking_id = $_GET['id'];
-$stud_id = $_SESSION['Stud_id'];
+$user_type = $_SESSION['User_type'] ?? 'student'; // Default to student if missing
+$stud_id = $_SESSION['Stud_id'] ?? 0;
 
-// 2. FETCH BOOKING DETAILS
-// We join tables to get the Student Name, Vehicle Plate, and Parking Slot info
+// 2. DEFINE PERMISSIONS
+// Admins and Staff can view ALL tickets. Students can only view THEIR OWN.
+$can_view_all = in_array($user_type, ['admin', 'staff']);
+
+// 3. BUILD SQL
 $sql = "SELECT pb.*, ps.PS_box, ps.PS_Area, s.Stud_firstname, s.Stud_lastname, vr.Vehicle_brand, vr.Vehicle_color 
         FROM parkingbooking pb
         JOIN parkingspace ps ON pb.PS_id = ps.PS_id
         JOIN student s ON pb.Stud_id = s.Stud_id
-        -- We join vehicle_registration to get car details (optional, but looks nice)
         LEFT JOIN vehicle vr ON pb.Vehicle_regNo = vr.Vehicle_regNo
-        WHERE pb.PB_id = ? AND pb.Stud_id = ?";
+        WHERE pb.PB_id = ?";
+
+// If they are NOT admin/staff (meaning they are a Student), add the ownership check
+if (!$can_view_all) {
+    $sql .= " AND pb.Stud_id = ?";
+}
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $booking_id, $stud_id);
+
+if ($can_view_all) {
+    // Admin/Staff only binds Booking ID
+    $stmt->bind_param("i", $booking_id);
+} else {
+    // Student binds Booking ID AND Student ID
+    $stmt->bind_param("ii", $booking_id, $stud_id);
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
 $ticket = $result->fetch_assoc();
 
 if (!$ticket) {
-    echo "Ticket not found or access denied.";
+    echo "<h2>Access Denied</h2><p>Ticket not found or you do not have permission to view it.</p>";
     exit();
 }
 ?>
