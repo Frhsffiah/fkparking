@@ -252,10 +252,7 @@ if (isset($_POST['cancel_booking'])) {
                         <p><i class="fas fa-car"></i> <?= htmlspecialchars($row['Vehicle_regNo']) ?></p>
                         <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($row['PB_status']) ?></span>
                         
-                        <?php if($row['PB_status'] == 'Pending'): ?>
-                            <!-- <p style="color:#d9534f; font-size:0.8rem; margin-top:5px;">
-                                * Scan QR at slot within 10 mins of arrival.
-                            </p> -->
+                        <?php if($row['PB_status'] == 'Pending'): ?>>
                         <?php endif; ?>
                     </div>
                     
@@ -265,11 +262,10 @@ if (isset($_POST['cancel_booking'])) {
                                 <input type="hidden" name="booking_id" value="<?= $row['PB_id'] ?>">
                                 <button type="submit" name="cancel_booking" class="btn-cancel">Cancel</button>
                             </form>
-                            <a href="student_view_ticket.php?id=<?= $row['PB_id'] ?>" 
-   target="_blank"
-   style="display:inline-block; padding:8px 15px; background:#007bff; color:white; text-decoration:none; border-radius:5px; margin-right:5px;">
-   <i class="fas fa-receipt"></i> Ticket
-</a>
+                            <a href="student_view_ticket.php?id=<?= $row['PB_id'] ?>" target="_blank" 
+                                style="display:inline-block; padding:8px 15px; background:#007bff; color:white; text-decoration:none; border-radius:5px; margin-right:5px;">
+                              <i class="fas fa-receipt"></i> Ticket
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>
