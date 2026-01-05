@@ -78,9 +78,21 @@ $staff = $stmt->get_result()->fetch_assoc();
         </a>
 
         <!-- Traffic Summon -->
-        <a href="#">
-            <i class="fas fa-file-invoice"></i> Traffic Summon
-        </a>
+        <button class="dropdown-btn" id="tsBtn">
+            <span>
+                <i class="fas fa-file-invoice"></i> Traffic Summon
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+        </button>
+
+        <div class="dropdown-containers" id="tsMenu">
+            <a href="staff_traffic_summon_list.php">
+                <i class="fas fa-list"></i> Summon List
+            </a>
+            <a href="staff_add_traffic_summon.php">
+                <i class="fas fa-plus-circle"></i> Add Summon
+            </a>
+        </div>
     </div>
 
     <!-- Logout -->
