@@ -143,21 +143,60 @@ input[readonly] { background: #f3f3f3; }
 
 <!-- ================= SIDEBAR ================= -->
 <div class="sidenav">
+
     <div>
         <div class="logo-container">
             <img src="../uploads/fkparkLogo.jpg" class="logo">
         </div>
 
-        <a href="staff_dashboard.php" class="button">
+        <!-- Dashboard -->
+        <a href="staff_dashboard.php" class="button active">
             <i class="fas fa-home"></i> Dashboard
         </a>
 
-        <button class="dropdown-btn active">
-            <span><i class="fas fa-file-invoice"></i> Traffic Summon</span>
-            <span class="dropdown-arrow">&#9660;</span>
+        <!-- User & Vehicle Registration -->
+        <button class="dropdown-btn" id="uvBtn">
+            <span>
+                <i class="fas fa-users"></i> User & Vehicle Registration
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
         </button>
 
-        <div class="dropdown-containers" style="display:block;">
+        <div class="dropdown-containers" id="uvMenu">
+            <a href="staff_approve_vec.php">
+                <i class="fas fa-car"></i> Vehicle Approval
+            </a>
+            <a href="staff_profile.php">
+                <i class="fas fa-user"></i> User Profiles
+            </a>
+        </div>
+
+        <!-- Parking -->
+         <button class="dropdown-btn" id="psBtn">
+            <span>
+                <i class="fas fa-parking"></i> Parking Spaces
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+         </button>
+            <div class="dropdown-containers" id="psMenu">
+                <a href="staff_parking_availability.php">
+                    <i class="fas fa-list"></i> Parking Availability
+                </a>
+            </div>
+
+        <a onclick="location.href='staff_bookings.php'">
+            <i class="fas fa-list"></i> Bookings
+        </a>
+
+        <!-- Traffic Summon -->
+        <button class="dropdown-btn" id="tsBtn">
+            <span>
+                <i class="fas fa-file-invoice"></i> Traffic Summon
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+        </button>
+
+        <div class="dropdown-containers" id="tsMenu">
             <a href="staff_traffic_summon_list.php">
                 <i class="fas fa-list"></i> Summon List
             </a>
@@ -167,9 +206,11 @@ input[readonly] { background: #f3f3f3; }
         </div>
     </div>
 
-    <button class="button" onclick="location.href='../public/logout_page.php'">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
+    <!-- Logout -->
+    <button class="button" id="logout-button"
+          onclick="location.href='../public/logout_page.php'">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
 </div>
 
 <!-- ================= MAIN CONTENT ================= -->
@@ -229,6 +270,7 @@ input[readonly] { background: #f3f3f3; }
     </div>
 </div>
 
+<!-- ================= SCRIPT ================= -->
 <script>
 function setDeviceTime() {
     const now = new Date();
@@ -264,6 +306,19 @@ function updatePoints() {
 }
 
 setDeviceTime();
+
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
+});
 </script>
 
 </body>

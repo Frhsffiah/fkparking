@@ -126,9 +126,19 @@ $student = $stmt->get_result()->fetch_assoc();
     </div>
 
   <!-- Summon -->
-  <button class="button">
-    <i class="fas fa-receipt"></i> Summon
+  <button class="dropdown-btn" id="tsBtn">
+    <span class="icon-text">
+      <i class="fas fa-receipt"></i>
+      <span>Traffic Summon</span>
+    </span>
+    <span class="dropdown-arrow">&#9654;</span>
   </button>
+
+  <div class="dropdown-containers" id="tsMenu">
+    <a href="student_traffic_summon_list.php">
+      <i class="fas fa-list"></i> My Summons
+    </a>
+  </div>
 
 
   <button class="button" id="logout-button"

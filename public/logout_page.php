@@ -8,5 +8,5 @@ $_SESSION = [];
 session_destroy();
 
 /* Redirect to login */
-header("Location: /fkparking/public/login_page.php");
+header("Location: /public/login_page.php");
 exit();

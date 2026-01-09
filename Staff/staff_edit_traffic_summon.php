@@ -44,6 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $violation   = $_POST['Summon_violationType'];
     $description = $_POST['Summon_description'];
+    $status      = $summon['Summon_status']; // default to current
+
+    // Allow changing Unpaid/Overdue -> Paid only
+    if (isset($_POST['Summon_status']) && $_POST['Summon_status'] === 'Paid' &&
+        ($summon['Summon_status'] === 'Unpaid' || $summon['Summon_status'] === 'Overdue')) {
+        $status = 'Paid';
+    }
 
     /* VIOLATION → POINT MAPPING */
     $pointsMap = [
@@ -55,19 +62,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
     $points = $pointsMap[$violation] ?? 0;
 
-    /* ===== UPDATE SUMMON (only violation & description & points) ===== */
+    /* ===== UPDATE SUMMON (violation, description, points, status) ===== */
     $update = $conn->prepare("
         UPDATE trafficsummon SET
             Summon_violationType = ?,
             Summon_description = ?,
-            Summon_point = ?
+            Summon_point = ?,
+            Summon_status = ?
         WHERE Summon_id = ?
     ");
     $update->bind_param(
-        "ssii",
+        "ssisi",
         $violation,
         $description,
         $points,
+        $status,
         $summon_id
     );
 
@@ -90,15 +99,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-.main-content { margin-left: 250px; padding: 40px; }
-.card { background: #fff; padding: 30px; border-radius: 15px; max-width: 650px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin: 0 auto; }
-h2 { color: #1b5e20; }
-.form-group { margin-bottom: 15px; }
-label { font-weight: 600; color: #1b5e20; margin-bottom: 5px; display: block; }
-input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
-input[readonly] { background: #f3f3f3; }
-.alert-error { background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 15px; }
-.btn-submit { background: #1b5e20; color: #fff; padding: 12px; width: 100%; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; }
+.main-content { 
+    margin-left: 250px; 
+    padding: 40px; 
+}
+
+.card { 
+    background: #fff; 
+    padding: 30px; 
+    border-radius: 15px; 
+    max-width: 650px; 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+    margin: 0 auto; 
+}
+
+h2 { 
+    color: #1b5e20; 
+}
+
+.form-group { 
+    margin-bottom: 15px; 
+}
+
+label { 
+    font-weight: 600; 
+    color: #1b5e20; 
+    margin-bottom: 5px; 
+    display: block; 
+}
+
+input, select, textarea { 
+    width: 100%; 
+    padding: 10px; 
+    border-radius: 8px; 
+    border: 1px solid #ccc; 
+}
+
+input[readonly] { 
+    background: #f3f3f3; 
+}
+
+.alert-error { 
+    background: #ffebee; 
+    color: #c62828; 
+    padding: 12px; 
+    border-radius: 8px; 
+    margin-bottom: 15px; 
+}
+
+.btn-submit { 
+    background: #1b5e20; 
+    color: #fff; 
+    padding: 12px; 
+    width: 100%; 
+    border-radius: 8px; 
+    border: none; 
+    cursor: pointer; 
+    font-size: 16px; 
+    margin-top: 10px; 
+}
+
+.btn-back { 
+    background: #555; 
+    color: #fff; 
+    padding: 10px 20px; 
+    border-radius: 8px; 
+    display: inline-block; 
+    text-decoration: none; 
+    margin-bottom: 20px; 
+}
+
+.btn-back:hover { 
+    background: #333; 
+}
+
 </style>
 </head>
 
@@ -106,29 +180,74 @@ input[readonly] { background: #f3f3f3; }
 
 <!-- ================= SIDEBAR ================= -->
 <div class="sidenav">
+
     <div>
         <div class="logo-container">
             <img src="../uploads/fkparkLogo.jpg" class="logo">
         </div>
 
-        <a href="staff_dashboard.php" class="button">
+        <!-- Dashboard -->
+        <a href="staff_dashboard.php" class="button active">
             <i class="fas fa-home"></i> Dashboard
         </a>
 
-        <button class="dropdown-btn active">
-            <span><i class="fas fa-file-invoice"></i> Traffic Summon</span>
-            <span class="dropdown-arrow">&#9660;</span>
+        <!-- User & Vehicle Registration -->
+        <button class="dropdown-btn" id="uvBtn">
+            <span>
+                <i class="fas fa-users"></i> User & Vehicle Registration
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
         </button>
 
-        <div class="dropdown-containers" style="display:block;">
-            <a href="staff_traffic_summon_list.php"><i class="fas fa-list"></i> Summon List</a>
-            <a href="staff_add_traffic_summon.php"><i class="fas fa-plus-circle"></i> Add Summon</a>
+        <div class="dropdown-containers" id="uvMenu">
+            <a href="staff_approve_vec.php">
+                <i class="fas fa-car"></i> Vehicle Approval
+            </a>
+            <a href="staff_profile.php">
+                <i class="fas fa-user"></i> User Profiles
+            </a>
+        </div>
+
+        <!-- Parking -->
+         <button class="dropdown-btn" id="psBtn">
+            <span>
+                <i class="fas fa-parking"></i> Parking Spaces
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+         </button>
+            <div class="dropdown-containers" id="psMenu">
+                <a href="staff_parking_availability.php">
+                    <i class="fas fa-list"></i> Parking Availability
+                </a>
+            </div>
+
+        <a onclick="location.href='staff_bookings.php'">
+            <i class="fas fa-list"></i> Bookings
+        </a>
+
+        <!-- Traffic Summon -->
+        <button class="dropdown-btn" id="tsBtn">
+            <span>
+                <i class="fas fa-file-invoice"></i> Traffic Summon
+            </span>
+            <span class="dropdown-arrow">&#9654;</span>
+        </button>
+
+        <div class="dropdown-containers" id="tsMenu">
+            <a href="staff_traffic_summon_list.php">
+                <i class="fas fa-list"></i> Summon List
+            </a>
+            <a href="staff_add_traffic_summon.php">
+                <i class="fas fa-plus-circle"></i> Add Summon
+            </a>
         </div>
     </div>
 
-    <button class="button" onclick="location.href='../public/logout_page.php'">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
+    <!-- Logout -->
+    <button class="button" id="logout-button"
+          onclick="location.href='../public/logout_page.php'">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
 </div>
 
 <!-- ================= MAIN CONTENT ================= -->
@@ -178,12 +297,25 @@ input[readonly] { background: #f3f3f3; }
                 <textarea name="Summon_description" rows="3"><?= htmlspecialchars($summon['Summon_description']) ?></textarea>
             </div>
 
+            <div class="form-group">
+                <label>Summon Status</label>
+                <?php if($summon['Summon_status'] === 'Unpaid' || $summon['Summon_status'] === 'Overdue'): ?>
+                    <select name="Summon_status" required>
+                        <option value="Paid">Paid</option>
+                    </select>
+                    <small>Current status: <?= $summon['Summon_status'] ?> (will change to Paid if submitted)</small>
+                <?php else: ?>
+                    <input type="text" value="<?= $summon['Summon_status'] ?>" readonly>
+                <?php endif; ?>
+            </div>
+
             <button type="submit" class="btn-submit"> Update Summon </button>
 
         </form>
     </div>
 </div>
 
+<!-- ================= SCRIPT ================= -->
 <script>
 function updatePoints() {
     const map = {
@@ -198,6 +330,19 @@ function updatePoints() {
 
 // Set points on page load
 updatePoints();
+
+document.querySelectorAll(".dropdown-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+
+        let dropdown = this.nextElementSibling;
+        if (dropdown.style.display === "block") {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+        }
+    });
+});
 </script>
 
 </body>
