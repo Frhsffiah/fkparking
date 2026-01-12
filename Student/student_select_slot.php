@@ -25,7 +25,7 @@ if (!$date || !$start || !$end) {
 // ==========================================================
 // CORRECTIVE MAINTENANCE: "Set booking limit at a time to one only"
 // ==========================================================
-// Check if this student already has an active booking (Pending or Approved) for the future
+// Check if this student already has an active booking
 $checkLimit = $conn->prepare("
     SELECT PB_id FROM parkingbooking 
     WHERE Stud_id = ? 
@@ -263,13 +263,8 @@ if ($checkLimit->num_rows > 0) {
         <div class="slot-grid">
             <?php
             // ==========================================================
-            // LOGIC CHANGE: SHOW ALL, BUT MARK BOOKED AS UNAVAILABLE
+            // LOGIC CHANGE: SHOW ALL, BUT MARK UNAVAILABLE AS UNCLICKABLE
             // ==========================================================
-            
-            // We use a LEFT JOIN. 
-            // 1. Get ALL parking spaces (ps)
-            // 2. Try to join a booking (pb) that overlaps with our requested time.
-            // 3. If the join is successful (pb.PB_id is NOT NULL), it means the slot is TAKEN.
             
             $sql = "
                 SELECT ps.*, 
@@ -278,7 +273,7 @@ if ($checkLimit->num_rows > 0) {
                     FROM parkingbooking pb 
                     WHERE pb.PS_id = ps.PS_id 
                     AND pb.PB_date = ? 
-                    AND pb.PB_status IN ('Approved', 'Pending', 'Success') 
+                    AND pb.PB_status IN ('Pending', 'Success') 
                     AND NOT (pb.PB_endTime <= ? OR pb.PB_startTime >= ?)
                 ) as active_bookings
                 FROM parkingspace ps

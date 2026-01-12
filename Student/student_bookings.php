@@ -94,7 +94,15 @@ if (isset($_POST['cancel_booking'])) {
         .badge-cancelled { background-color: #dc3545; }
         .badge-success { background-color: #28a745; }
 
-        .action-area { text-align: right; }
+        .action-area {
+            display: flex;             /* Forces items to sit in a row */
+            align-items: center;       /* Centers them vertically */
+            justify-content: flex-end; /* Pushes them to the right */
+            gap: 10px;                 /* Adds space between the buttons */
+        }
+        .action-area form {
+            margin: 0;
+        }
         
         .btn-cancel {
             background-color: #dc3545; color: white; border: none;
@@ -156,9 +164,6 @@ if (isset($_POST['cancel_booking'])) {
     <a href="student_parking_availability.php">
       <i class="fas fa-list"></i> Parking Availability
     </a>
-    <a href="student_my_parking.php">
-      <i class="fas fa-car-side"></i> My Parking
-    </a>
     </div>
     
 
@@ -217,10 +222,6 @@ if (isset($_POST['cancel_booking'])) {
         <div class="section-title">Upcoming & Active</div>
         
         <?php
-        // Fetch Future/Active Bookings (Pending, Approved, Success)
-        // We JOIN with parking_space (ps) to get the box number (e.g., A101)
-        // Note: Check your table name. I am using 'parking_booking'. 
-        // If your table is 'parkingbooking', please remove the underscore below.
         $activeSql = "
             SELECT pb.*, ps.PS_box, ps.PS_Area 
             FROM parkingbooking pb
@@ -251,10 +252,7 @@ if (isset($_POST['cancel_booking'])) {
                         <p><i class="fas fa-car"></i> <?= htmlspecialchars($row['Vehicle_regNo']) ?></p>
                         <span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($row['PB_status']) ?></span>
                         
-                        <?php if($row['PB_status'] == 'Pending'): ?>
-                            <p style="color:#d9534f; font-size:0.8rem; margin-top:5px;">
-                                * Scan QR at slot within 10 mins of arrival.
-                            </p>
+                        <?php if($row['PB_status'] == 'Pending'): ?>>
                         <?php endif; ?>
                     </div>
                     
@@ -264,6 +262,10 @@ if (isset($_POST['cancel_booking'])) {
                                 <input type="hidden" name="booking_id" value="<?= $row['PB_id'] ?>">
                                 <button type="submit" name="cancel_booking" class="btn-cancel">Cancel</button>
                             </form>
+                            <a href="student_view_ticket.php?id=<?= $row['PB_id'] ?>" target="_blank" 
+                                style="display:inline-block; padding:8px 15px; background:#007bff; color:white; text-decoration:none; border-radius:5px; margin-right:5px;">
+                              <i class="fas fa-receipt"></i> Ticket
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>

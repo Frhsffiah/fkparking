@@ -57,6 +57,10 @@ $admin = $stmt->get_result()->fetch_assoc();
         <a href="admin_add_parking.php">Add Parking</a>
     </div>
 
+    <button onclick="location.href='admin_bookings.php'">
+        <i class="fas fa-list"></i> Bookings
+    </button>
+
     <div class="logout">
         <button onclick="location.href='../public/logout_page.php'">
             <i class="fas fa-sign-out-alt"></i> Logout

@@ -111,6 +111,11 @@ th{
                     <i class="fas fa-list"></i> Parking Availability
                 </a>
             </div>
+
+        <a onclick="location.href='staff_bookings.php'">
+            <i class="fas fa-list"></i> Bookings
+        </a>
+
         <!-- Traffic Summon -->
         <a href="#">
             <i class="fas fa-file-invoice"></i> Traffic Summon
