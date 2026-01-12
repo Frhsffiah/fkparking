@@ -65,12 +65,16 @@ $resultParking = $stmtParking->get_result();
 /* ===== CARD ===== */
 .parking-card {
     background: #ffffff;
-    padding: 25px;
+    padding: 30px;
     border-radius: 14px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    max-width: 1200px;
-    margin: auto;
+
+    /* KEY FIX */
+    width: 100%;
+    max-width: none;      /* remove limitation */
+    margin: 0;            /* align with sidebar */
 }
+
 
 /* ===== HEADER ===== */
 .parking-header {
@@ -291,13 +295,7 @@ tbody tr:hover {
                 <a href="admin_delete_parking.php?id=<?= $p['PS_id'] ?>"
                    onclick="return confirm('Delete this parking?');">Delete</a>
             </td>
-            <td>
-                <?php if (!empty($p['PS_Qrcode'])): ?>
-                    <img src="<?= htmlspecialchars($p['PS_Qrcode']) ?>" class="qr-code-img">
-                <?php else: ?>
-                    -
-                <?php endif; ?>
-            </td>
+            
         </tr>
         <?php endwhile; else: ?>
         <tr>

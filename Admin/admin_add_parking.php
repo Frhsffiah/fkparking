@@ -85,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <link rel="stylesheet" href="style/navbaradmin.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 .main-content {
@@ -96,17 +97,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 /* Professional container */
 .form-card {
-    background: #fff;
-    max-width: 900px;
-    padding: 40px 45px;
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+
+    /* KEY FIX */
+    width: 100%;
+    max-width: none;      /* remove limitation */
+    margin: 0; 
 }
 
 .form-card h2 {
     margin-bottom: 30px;
     font-size: 24px;
     font-weight: 600;
+    text-align:center;
     color: #333;
 }
 
@@ -262,7 +268,13 @@ button:hover {
 
     <div class="form-group">
         <label>Box Number</label>
-        <input type="text" name="parking_box" placeholder="e.g. 01" required>
+        <input type="number"
+       name="parking_box"
+       placeholder="e.g. 1, 11, 12"
+       min="1"
+       max="100"
+       required>
+
     </div>
 
     <div class="form-group">
@@ -296,11 +308,6 @@ button:hover {
 
 <script>
 /* Auto-format box number */
-const boxInput = document.querySelector('input[name="parking_box"]');
-boxInput.addEventListener("input", function () {
-    let v = this.value.replace(/\D/g, '');
-    this.value = v.length === 1 ? "0" + v : v.substring(0,2);
-});
 
 /* Vehicle Type → Parking Area */
 const vehicleType = document.getElementById("vehicle_type");
