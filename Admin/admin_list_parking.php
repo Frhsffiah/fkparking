@@ -178,6 +178,18 @@ tbody tr:hover {
     color: #888;
     padding: 30px;
 }
+
+/* ===== STATUS INDICATOR ===== */
+.status-available {
+    color: #28a745;              /* green */
+    font-weight: 600;
+}
+
+.status-unavailable {
+    color: #dc3545;              /* red */
+    font-weight: 600;
+}
+
 </style>
 </head>
 
@@ -288,7 +300,9 @@ tbody tr:hover {
             <td><?= ucfirst($p['vehicle_type']) ?></td>
             <td><?= htmlspecialchars($p['PS_Area']) ?></td>
             <td><?= htmlspecialchars($p['PS_box']) ?></td>
-            <td><?= ucfirst($p['PS_status']) ?></td>
+            <td class="<?= $p['PS_status'] === 'available' ? 'status-available' : 'status-unavailable' ?>">
+                <?= ucfirst($p['PS_status']) ?>
+            </td>
             <td><?= $p['PS_status']=='unavailable' ? htmlspecialchars($p['PS_reason']) : '-' ?></td>
             <td class="action-buttons">
                 <a href="admin_edit_parking.php?id=<?= $p['PS_id'] ?>">Edit</a>
