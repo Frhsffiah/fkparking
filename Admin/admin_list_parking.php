@@ -265,7 +265,6 @@ tbody tr:hover {
             <th>Status</th>
             <th>Reason</th>
             <th>Action</th>
-            <th>QR</th>
         </tr>
         </thead>
 

@@ -19,8 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $vehicleType = $_POST['vehicle_type'];
     $area        = $_POST['parking_area'];
-    $box         = $_POST['parking_box'];
-    $status      = $_POST['status'];
+
+    /* Auto-format box number (01, 02, etc.) */
+    $box = str_pad($_POST['parking_box'], 2, '0', STR_PAD_LEFT);
+
+    $status = $_POST['status'];
 
     if ($status === 'unavailable') {
         $reason = $_POST['reason'];
@@ -32,26 +35,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $end    = NULL;
     }
 
-    $sql = "INSERT INTO parkingspace 
-            (vehicle_type, PS_Area, PS_box, PS_status, PS_reason, start_datetime, end_datetime, PS_create, PS_updated)
-            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+    /* ===== PREVENT DUPLICATE PARKING BOX ===== */
+    $checkSql = "
+        SELECT 1 
+        FROM parkingspace 
+        WHERE vehicle_type = ?
+          AND PS_Area = ?
+          AND PS_box = ?
+    ";
+    $checkStmt = $conn->prepare($checkSql);
+    $checkStmt->bind_param("sss", $vehicleType, $area, $box);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
 
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(
-        "sssssss",
-        $vehicleType,
-        $area,
-        $box,
-        $status,
-        $reason,
-        $start,
-        $end
-    );
-
-    if ($stmt->execute()) {
-        $success = "Parking space added successfully.";
+    if ($checkResult->num_rows > 0) {
+        $error = "This parking box already exists for the selected area and vehicle type.";
     } else {
-        $error = "Failed to add parking space.";
+
+        $sql = "INSERT INTO parkingspace 
+                (vehicle_type, PS_Area, PS_box, PS_status, PS_reason, start_datetime, end_datetime, PS_create, PS_updated)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param(
+            "sssssss",
+            $vehicleType,
+            $area,
+            $box,
+            $status,
+            $reason,
+            $start,
+            $end
+        );
+
+        if ($stmt->execute()) {
+            $success = "Parking space added successfully.";
+        } else {
+            $error = "Failed to add parking space.";
+        }
     }
 }
 ?>
@@ -63,51 +84,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Add Parking Area</title>
 
 <link rel="stylesheet" href="style/navbaradmin.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
 .main-content {
     margin-left: 260px;
-    padding: 30px;
+    padding: 40px;
+    background: #f7f8fa;
+    min-height: 100vh;
 }
 
+/* Professional container */
 .form-card {
     background: #fff;
-    max-width: 550px;
-    margin: auto;
-    padding: 25px;
-    border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    max-width: 900px;
+    padding: 40px 45px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
 .form-card h2 {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 22px;
 }
 
 label {
-    font-weight: bold;
+    font-weight: 600;
+    margin-bottom: 8px;
     display: block;
-    margin-bottom: 5px;
 }
 
 select, input {
     width: 100%;
-    padding: 10px;
-    border-radius: 6px;
+    padding: 13px;
+    border-radius: 8px;
     border: 1px solid #ccc;
+    font-size: 15px;
 }
 
 button {
     width: 100%;
-    padding: 12px;
+    padding: 15px;
     background: linear-gradient(135deg, #ff2b78, #ff5fa2);
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -115,27 +144,34 @@ button:hover {
     opacity: 0.9;
 }
 
+/* Validation UI */
 .alert {
-    margin-bottom: 15px;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .alert-success {
-    background: #dff0d8;
-    color: #3c763d;
+    background: #e6f7ee;
+    color: #1e7e34;
+    border-left: 6px solid #28a745;
 }
 
 .alert-danger {
-    background: #f2dede;
-    color: #a94442;
+    background: #fdecea;
+    color: #b02a37;
+    border-left: 6px solid #dc3545;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER (UNCHANGED) -->
+<!-- HEADER -->
 <div class="header">
     <div class="header-content">
         <div></div>
@@ -146,7 +182,7 @@ button:hover {
     </div>
 </div>
 
-<!-- SIDEBAR (UNCHANGED) -->
+<!-- SIDEBAR -->
 <div class="sidenav">
     <div class="logo-container">
         <img src="../uploads/fkparkLogo.jpg" class="logo">
@@ -191,16 +227,19 @@ button:hover {
 <h2>Add Parking Area</h2>
 
 <?php if (!empty($success)): ?>
-<div class="alert alert-success"><?= $success ?></div>
+<div class="alert alert-success">
+    <i class="fas fa-check-circle"></i> <?= $success ?>
+</div>
 <?php endif; ?>
 
 <?php if (!empty($error)): ?>
-<div class="alert alert-danger"><?= $error ?></div>
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i> <?= $error ?>
+</div>
 <?php endif; ?>
 
 <form method="POST">
 
-    <!-- Vehicle Type -->
     <div class="form-group">
         <label>Vehicle Type</label>
         <select name="vehicle_type" id="vehicle_type" required>
@@ -210,7 +249,6 @@ button:hover {
         </select>
     </div>
 
-    <!-- Parking Area -->
     <div class="form-group">
         <label>Parking Area</label>
         <select name="parking_area" id="parking_area" required disabled>
@@ -218,13 +256,11 @@ button:hover {
         </select>
     </div>
 
-    <!-- Box Number -->
     <div class="form-group">
         <label>Box Number</label>
         <input type="text" name="parking_box" placeholder="e.g. 01" required>
     </div>
 
-    <!-- Status -->
     <div class="form-group">
         <label>Status</label>
         <select name="status" id="status" required>
@@ -233,7 +269,6 @@ button:hover {
         </select>
     </div>
 
-    <!-- Reason -->
     <div class="form-group" id="reasonGroup" style="display:none;">
         <label>Status Reason</label>
         <select name="reason">
@@ -243,7 +278,6 @@ button:hover {
         </select>
     </div>
 
-    <!-- Time Period -->
     <div class="form-group" id="timeGroup" style="display:none;">
         <label>Unavailable Period</label>
         <input type="datetime-local" name="start_datetime" style="margin-bottom:10px;">
@@ -251,14 +285,20 @@ button:hover {
     </div>
 
     <button type="submit">Add Parking</button>
-
 </form>
 
 </div>
 </div>
 
 <script>
-/* ===== VEHICLE TYPE → PARKING AREA ===== */
+/* Auto-format box number */
+const boxInput = document.querySelector('input[name="parking_box"]');
+boxInput.addEventListener("input", function () {
+    let v = this.value.replace(/\D/g, '');
+    this.value = v.length === 1 ? "0" + v : v.substring(0,2);
+});
+
+/* Vehicle Type → Parking Area */
 const vehicleType = document.getElementById("vehicle_type");
 const parkingArea = document.getElementById("parking_area");
 
@@ -267,46 +307,32 @@ vehicleType.addEventListener("change", function () {
     parkingArea.disabled = false;
 
     if (this.value === "car") {
-        ["B1", "B2", "B3"].forEach(a => {
-            let opt = document.createElement("option");
-            opt.value = a;
-            opt.textContent = a;
-            parkingArea.appendChild(opt);
+        ["B1","B2","B3"].forEach(a => {
+            parkingArea.innerHTML += `<option value="${a}">${a}</option>`;
         });
     }
 
     if (this.value === "motorcycle") {
-        let opt = document.createElement("option");
-        opt.value = "B4";
-        opt.textContent = "B4";
-        parkingArea.appendChild(opt);
+        parkingArea.innerHTML += `<option value="B4">B4</option>`;
     }
 
-    if (this.value === "") {
-        parkingArea.disabled = true;
-    }
+    if (!this.value) parkingArea.disabled = true;
 });
 
-/* ===== STATUS TOGGLE ===== */
+/* Status Toggle */
 document.getElementById("status").addEventListener("change", function () {
     const show = this.value === "unavailable";
     document.getElementById("reasonGroup").style.display = show ? "block" : "none";
     document.getElementById("timeGroup").style.display   = show ? "block" : "none";
 });
-</script>
 
-<script>
+/* Sidebar Dropdown */
 document.querySelectorAll(".dropdown-btn").forEach(btn => {
     btn.addEventListener("click", function () {
         let content = this.nextElementSibling;
         let arrow = this.querySelector(".dropdown-arrow");
-        if (content.style.display === "block") {
-            content.style.display = "none";
-            arrow.innerHTML = "&#9654;";
-        } else {
-            content.style.display = "block";
-            arrow.innerHTML = "&#9660;";
-        }
+        content.style.display = content.style.display === "block" ? "none" : "block";
+        arrow.innerHTML = content.style.display === "block" ? "&#9660;" : "&#9654;";
     });
 });
 </script>
